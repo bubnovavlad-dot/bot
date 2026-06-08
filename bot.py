@@ -168,7 +168,15 @@ async def publish_to_vk(text: str, media_path: str = None, media_type: str = Non
                 upload_data = vk.http.post(upload_url, files={'photo': f})
             photo_data = vk.photos.saveWallPhoto(group_id=VK_GROUP_ID, **upload_data)
             attachments = [f"photo{photo['owner_id']}_{photo['id']}" for photo in photo_data]
-        vk.wall.post(owner_id=VK_GROUP_ID, message=text, attachments=','.join(attachments))
+        
+        # ✅ Публикуем от имени группы
+        owner_id = -int(VK_GROUP_ID)   # минус перед ID группы
+        vk.wall.post(
+            owner_id=owner_id,
+            from_group=1,               # важно!
+            message=text,
+            attachments=','.join(attachments)
+        )
         return True
     except Exception as e:
         logger.error(f"VK error: {e}")
